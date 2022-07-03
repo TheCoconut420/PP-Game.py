@@ -215,7 +215,7 @@ class Warrior(Hero):
 
     def attack(self):
         if self._speed > enemy._speed:
-            damage = (self._weapon_damage - enemy._defense)
+            damage = ((random.randint(5,7) + self._weapon_damage) - enemy._defense)
             if damage <= 0:
                 layout = [
                 [gui.Text('The Attack did no damage!')],
@@ -1219,7 +1219,7 @@ if __name__ == "__main__":
                 event, values = window.read()
                 if event == "Ok" or  event == gui.WIN_CLOSED:
                     window.close()
-                    break
+                    quit()
         archer.choose()
         archer.level_up()
         if enemy._health <= 0:
@@ -1234,7 +1234,7 @@ if __name__ == "__main__":
                 event, values = window.read()
                 if event == "Ok" or  event == gui.WIN_CLOSED:
                     window.close()
-                    break
+                    quit()
         enemy.attack()
         if warrior._health <= 0 and mage._health <= 0 and archer._health <= 0:
             layout = [
@@ -1248,4 +1248,4 @@ if __name__ == "__main__":
                 event, values = window.read()
                 if event == "Ok" or  event == gui.WIN_CLOSED:
                     window.close()
-                    break
+                    quit()
