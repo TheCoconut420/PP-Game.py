@@ -154,6 +154,7 @@ class Hero:
             self._speed += 1
             self._luck += 1
             layout = [
+            [gui.Text(str(self._name) + ' leveled up!')],
             [gui.Text(str(self._name) + ' now has:')],
             [gui.Text('Health: ' + str(self._health))],
             [gui.Text('Magic Power: ' + str(self._magic_power))],
@@ -235,24 +236,24 @@ class Warrior(Hero):
                     enemy._health -= damage
                     self._exp += damage
                     if random.randint(0, 100) <= 20:
-                            self._weapon_damage = 1
-                            self._weapon = "Empty Hand"
-                            layout = [
-                            [gui.Text('The Attack was a critical hit!')],
-                            [gui.Text('The Attack did ' + str(damage) + ' damage!')],
-                            [gui.Text(self._name + ' gained ' + str(damage) + ' experience!')],
-                            [gui.Text(self._name + ' has ' + str(self._exp) + ' experience!')],
-                            [gui.Text ('The ' + self._name + ' The Weapon broke!')],
-                            [gui.Button("Ok")]
-                            ]
+                        self._weapon_damage = 1
+                        self._weapon = "Empty Hand"
+                        layout = [
+                        [gui.Text('The Attack was a critical hit!')],
+                        [gui.Text('The Attack did ' + str(damage) + ' damage!')],
+                        [gui.Text(self._name + ' gained ' + str(damage) + ' experience!')],
+                        [gui.Text(self._name + ' has ' + str(self._exp) + ' experience!')],
+                        [gui.Text ('The ' + self._name + ' The Weapon broke!')],
+                        [gui.Button("Ok")]
+                        ]
 
-                            window = gui.Window('Results', layout)
+                        window = gui.Window('Results', layout)
 
-                            while True:
-                                event, values = window.read()
-                                if event == "Ok" or  event == gui.WIN_CLOSED:
-                                    break
-                            window.close()
+                        while True:
+                            event, values = window.read()
+                            if event == "Ok" or  event == gui.WIN_CLOSED:
+                                break
+                        window.close()
                     else:
                         layout = [
                         [gui.Text('The Attack was a critical hit!')],
@@ -426,7 +427,6 @@ class Warrior(Hero):
                 if event == "Ok" or  event == gui.WIN_CLOSED:
                     break
             window.close()
-            exit()
         else:
             layout = [
             [gui.Text('What should the Warrior do?')],
@@ -506,21 +506,23 @@ class Mage(Hero):
                 if event == "Ok" or  event == gui.WIN_CLOSED:
                     break
             window.close()
+            self.choose()
         else:
             layout = [
                 [gui.Text("What magic should the mage use?")],
-                [gui.Button("  Frost  ", size = (23, 1))],
-                [gui.Button(" Weakness", size = (23, 1))],
-                [gui.Button("   Heal  ", size = (23, 1))],
-                [gui.Button("   Fire  ", size = (23, 1))],
-                [gui.Button("Lightning", size = (23, 1))]
+                [gui.Button("  Frost  ", size = (25, 1))],
+                [gui.Button(" Weakness", size = (25, 1))],
+                [gui.Button("   Heal  ", size = (25, 1))],
+                [gui.Button("   Fire  ", size = (25, 1))],
+                [gui.Button("Lightning", size = (25, 1))],
+                [gui.Button("  Back   ", size = (25, 1))],
             ]
 
-            window = gui.Window('Decision.', layout, size = (230, 200))
+            window = gui.Window('Decision.', layout, size = (240, 230))
                 
             while True:
                 event, values = window.read()
-                if event == "  Frost  " or event == " Weakness" or event == "   Heal  " or event == "   Fire  " or event == "Lightning" or event == "Ok" or event == gui.WIN_CLOSED:
+                if event == "  Frost  " or event == " Weakness" or event == "   Heal  " or event == "  Back   " or event == "   Fire  " or event == "Lightning" or event == "Ok" or event == gui.WIN_CLOSED:
                     if event == "  Frost  ":
                         window.close()
                         self.frost()
@@ -531,7 +533,7 @@ class Mage(Hero):
                         break
                     elif event == "   Heal  ":
                         window.close()
-                        self.heal
+                        self.heal()
                         break
                     elif event == "   Fire  ":
                         window.close()
@@ -540,6 +542,10 @@ class Mage(Hero):
                     elif event == "Lightning":
                         window.close()
                         self.lightning()
+                        break
+                    elif event == "  Back   ":
+                        window.close()
+                        self.choose()
                         break
                     elif event == gui.WIN_CLOSED:
                         window.close()
@@ -615,21 +621,23 @@ class Mage(Hero):
         heal = random.randint(10, 20)
         layout = [
         [gui.Text('Who should get the Heal?')],
-        [gui.Button("Warrior")], 
-        [gui.Button("Mage")],
-        [gui.Button("Archer")],
-        [gui.Button("Back")] 
+        [gui.Button("Warrior", size = (20, 1))], 
+        [gui.Button(" Mage  ", size = (20, 1))],
+        [gui.Button("Archer ", size = (20, 1))],
+        [gui.Button(" Back  ", size = (20, 1))] 
         ]
 
         window = gui.Window("Heal", layout)
         
         while True:
-            if event == gui.WIN_CLOSED or event == 'Back' or event == "Warrior" or event == "Mage" or event == "Archer":
+            event, values = window.read()
+            if event == gui.WIN_CLOSED or event == ' Back  ' or event == "Warrior" or event == " Mage  " or event == "Archer ":
                 if event == "Warrior":
+                    window.close()
                     warrior._health += heal
                     layout = [
                     [gui.Text('The Warrior now has:')],
-                    [gui.Text(str(warrior._health))]
+                    [gui.Text(str(warrior._health))],
                     [gui.Button("Ok")]
                     ]
 
@@ -641,11 +649,12 @@ class Mage(Hero):
                             break
                     window.close()
                     break
-                elif event == "Mage":
+                elif event == " Mage  ":
+                    window.close()
                     mage._health += heal
                     layout = [
                     [gui.Text('The Mage now has:')],
-                    [gui.Text(str(mage._health))]
+                    [gui.Text(str(mage._health))],
                     [gui.Button("Ok")]
                     ]
 
@@ -657,11 +666,12 @@ class Mage(Hero):
                             break
                     window.close()
                     break
-                elif event == "Archer":
+                elif event == "Archer ":
+                    window.close()
                     archer._health += heal
                     layout = [
                     [gui.Text('The Archer now has:')],
-                    [gui.Text(str(archer._health))]
+                    [gui.Text(str(archer._health))],
                     [gui.Button("Ok")]
                     ]
 
@@ -673,7 +683,7 @@ class Mage(Hero):
                             break
                     window.close()
                     break
-                elif event == "Back":
+                elif event == " Back  ":
                     self.magic_attack()
                     break
                 elif event == gui.WIN_CLOSED:
@@ -782,7 +792,6 @@ class Mage(Hero):
                 if event == "Ok" or  event == gui.WIN_CLOSED:
                     break
             window.close()
-            exit()
         else:
             layout = [
             [gui.Text('What should the Mage do?')],
@@ -854,17 +863,21 @@ class Archer(Hero):
         [gui.Text("the Archer use?")],
         [gui.Button("Roulette Arrow", size = (20, 1))],
         [gui.Button("Spectral Arrow", size = (20, 1))],
+        [gui.Button("     Back     ", size = (20, 1))],
         ]
 
-        window = gui.Window('Decision.', layout, size = (200, 130))
+        window = gui.Window('Decision.', layout, size = (200, 160))
         event, values = window.read()
-        if event == "Roulette Arrow" or event == "Spectral Arrow" or event == gui.WIN_CLOSED:
+        if event == "Roulette Arrow" or event == "Spectral Arrow" or event == gui.WIN_CLOSED or event == "     Back     ":
             if event == "Roulette Arrow":
                 window.close()
                 self.roulette_arrow()
             elif event == "Spectral Arrow":
                 window.close()
                 self.spectral_arrow()
+            elif event == "     Back     ":
+                window.close()
+                self.choose()
             elif event == gui.WIN_CLOSED:
                 self.magic_arrow()
 
@@ -969,7 +982,6 @@ class Archer(Hero):
                 if event == "Ok" or  event == gui.WIN_CLOSED:
                     break
             window.close()
-            exit()
         else:
             layout = [
             [gui.Text('What should the Archer do?')],
@@ -1039,9 +1051,9 @@ class Enemy():
     def attack(self):
         if self._health < 200:
             if random.randint(1, 3) == 1:
-                self.aoe_attack
+                self.aoe_attack()
             else:
-                self.single_attack
+                self.single_attack()
         else:
             self.single_attack()
 
@@ -1053,6 +1065,7 @@ class Enemy():
         layout = [
         [gui.Text('The Enemy has attacked all Heros!')],
         [gui.Text('The Enemy did ' + str(damage) + ' damage!')],
+        [gui.Button("Ok")]
         ]
 
         window = gui.Window('Results', layout)
