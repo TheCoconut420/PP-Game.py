@@ -1,8 +1,6 @@
 import random
-from colorama import init, Fore, Back, Style    #pip install colorama
 import PySimpleGUI as gui                       #pip install PySimpleGUI
-gui.theme("Black")
-init(autoreset=True)
+gui.theme("Black")                              
 
 
 class Hero:
@@ -141,14 +139,6 @@ class Hero:
                     if event == "Ok" or  event == gui.WIN_CLOSED:
                         break
                 window.close()
-
-    def defend(self): # not used
-        if random.randint(1, 10) <= 5:
-            print(Fore.LIGHTBLUE_EX + self._name + " defends!")
-            self._defense += self._defense * 0.2
-            print(Fore.LIGHTBLUE_EX + self._name + " has " + self._defense + " defense!")
-        else:
-            print(Fore.LIGHTBLUE_EX + self._name + " failed to defend!")
 
     def level_up(self):
         if self._exp >= 100:
@@ -461,6 +451,7 @@ class Warrior(Hero):
                 elif event == " Get my Stats  ":
                     window.close()
                     self.get_stats()
+                    self.choose()
                 elif event == gui.WIN_CLOSED:
                     self.choose()
 
@@ -517,16 +508,15 @@ class Mage(Hero):
             window.close()
         else:
             layout = [
-                [gui.Text("What magic should")],
-                [gui.Text("the Mage use?")],
-                [gui.Button("  Frost  ")],
-                [gui.Button(" Weakness")],
-                [gui.Button("   Heal  ")],
-                [gui.Button("   Fire  ")],
-                [gui.Button("Lightning")]
+                [gui.Text("What magic should the mage use?")],
+                [gui.Button("  Frost  ", size = (23, 1))],
+                [gui.Button(" Weakness", size = (23, 1))],
+                [gui.Button("   Heal  ", size = (23, 1))],
+                [gui.Button("   Fire  ", size = (23, 1))],
+                [gui.Button("Lightning", size = (23, 1))]
             ]
 
-            window = gui.Window('Decision.', layout)
+            window = gui.Window('Decision.', layout, size = (230, 200))
                 
             while True:
                 event, values = window.read()
@@ -817,6 +807,7 @@ class Mage(Hero):
                 elif event == "Get my Stats":
                     window.close()
                     self.get_stats()
+                    self.choose()
                 elif event == gui.WIN_CLOSED:
                     self.choose()
 
@@ -867,7 +858,7 @@ class Archer(Hero):
 
         window = gui.Window('Decision.', layout, size = (200, 130))
         event, values = window.read()
-        if event == "Roulette Arrow" or event == "Spectral Arrow " or event == gui.WIN_CLOSED:
+        if event == "Roulette Arrow" or event == "Spectral Arrow" or event == gui.WIN_CLOSED:
             if event == "Roulette Arrow":
                 window.close()
                 self.roulette_arrow()
@@ -1003,6 +994,7 @@ class Archer(Hero):
                 elif event == "Get my Stats":
                     window.close()
                     self.get_stats()
+                    self.choose()
                 elif event == gui.WIN_CLOSED:
                     self.choose()
 
