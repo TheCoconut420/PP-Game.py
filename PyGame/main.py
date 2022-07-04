@@ -16,11 +16,11 @@ FPS = 5
 IMAGE_WIDTH = 256
 IMAGE_HEIGHT = 256
 
-ARCHER_ALLY_IMAGE = pygame.image.load("Archer.png")
-KNIGHT_ALLY_IMAGE = pygame.image.load("Knight.png")
-MAGE_ALLY_IMAGE = pygame.image.load("Mage.png")
-ENEMY_IMAGE = pygame.image.load("Enemy.png")
-BACKGROUND_IMAGE = pygame.image.load("Background.jpg")
+ARCHER_ALLY_IMAGE = pygame.image.load("PyGame\Archer.png")
+KNIGHT_ALLY_IMAGE = pygame.image.load("PyGame\Knight.png")
+MAGE_ALLY_IMAGE = pygame.image.load("PyGame\Mage.png")
+ENEMY_IMAGE = pygame.image.load("PyGame\Enemy.png")
+BACKGROUND_IMAGE = pygame.image.load("PyGame\Background.jpg")
 
 ARCHER_ALLY = pygame.transform.scale(ARCHER_ALLY_IMAGE, (IMAGE_WIDTH, IMAGE_HEIGHT))
 KNIGHT_ALLY = pygame.transform.scale(KNIGHT_ALLY_IMAGE, (IMAGE_WIDTH, IMAGE_HEIGHT))
@@ -142,7 +142,7 @@ def draw_name():
 knight = Knight(600, 700, "Knight", 100, 100, 0, 10, 5, 10, 0, 1)
 archer = Archer(50, 700, "Archer", 80, 80, 5, 7, 3, 25, 0, 1)
 mage = Mage(350, 700, "Mage", 75, 75, 20, 10, 2, 15, 0, 1)
-enemy = Enemy(1400, 580, "Enemy", 1350, 1350, 0, 10, 10, 5, 0, 1)
+enemy = Enemy(1400, 580, "Enemy", 350, 350, 0, 10, 10, 5, 0, 1)
 
 knight_healthbar = HealthBar(knight._x+ 20, knight._y - 70, knight._health, knight._max_health)
 archer_healthbar = HealthBar(archer._x, archer._y - 70, archer._health, archer._max_health)
@@ -195,10 +195,6 @@ def main():
                 if knight._alive == False and archer._alive == False and mage._alive == False:
                     print("You lose")
                     break
-        print(knight._alive)
-        print(archer._alive)
-        print(mage._alive)
-        print(enemy._alive)
     pygame.quit()
 
 if __name__ == "__main__":
