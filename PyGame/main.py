@@ -1,8 +1,10 @@
 import random
 import pygame
+import PySimpleGUI as gui
 pygame.font.init()
+gui.theme("Black")  
 
-WIDTH, HEIGHT = 1920, 1080
+WIDTH, HEIGHT = 1920 / 2, 1080 / 2
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Role Playing Game")
 
@@ -11,28 +13,18 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 BLUE = (70, 130, 255)
-FPS = 5
+FPS = 15
 
-IMAGE_WIDTH = 256
-IMAGE_HEIGHT = 256
+IMAGE_WIDTH = 128
+IMAGE_HEIGHT = 128
 
 ARCHER_ALLY_IMAGE = pygame.image.load("PyGame\Archer.png")
-KNIGHT_ALLY_IMAGE = pygame.image.load("PyGame\Knight.png")
-MAGE_ALLY_IMAGE = pygame.image.load("PyGame\Mage.png")
 ENEMY_IMAGE = pygame.image.load("PyGame\Enemy.png")
 BACKGROUND_IMAGE = pygame.image.load("PyGame\Background.jpg")
 
-ARCHER_ALLY = pygame.transform.scale(ARCHER_ALLY_IMAGE, (IMAGE_WIDTH, IMAGE_HEIGHT))
-KNIGHT_ALLY = pygame.transform.scale(KNIGHT_ALLY_IMAGE, (IMAGE_WIDTH, IMAGE_HEIGHT))
-MAGE_ALLY = pygame.transform.scale(MAGE_ALLY_IMAGE, (200, IMAGE_HEIGHT))
-ENEMY = pygame.transform.scale(ENEMY_IMAGE, (IMAGE_WIDTH * 1.5 , IMAGE_HEIGHT * 1.5))
-BACKGROUND = pygame.transform.scale(BACKGROUND_IMAGE, (1920, 1080))
-font = pygame.font.SysFont("comicsans", 30, True)
+BACKGROUND = pygame.transform.scale(BACKGROUND_IMAGE, (1920 / 2, 1080 / 2))
+font = pygame.font.SysFont("comicsans", 15, True)
 
-current_fighter = 1
-total_fighters = 4
-action_cooldown = 0
-action_wait_time = 90
 
 class Objects():
     def __init__(self, x, y, name, health, max_health, mana, attack, defense, speed, exp, level):
@@ -53,53 +45,209 @@ class Objects():
     def draw(self):
         WIN.blit(self._image, (self._x, self._y))
 
+
     def check_alive(self):
         if self._health <= 0:
             self._health = 0
             self._alive = False
         return self._alive
 
+    def attack(self):
+        return
+
 
 class Knight(Objects):
     def __init__(self, x, y, name, health, max_health, mana, attack, defense, speed, exp, level):
         super().__init__(x, y, name, health, max_health, mana, attack, defense, speed, exp, level)
-        self._image = KNIGHT_ALLY
+        self._image = ("PyGame\KnightImages\A.png")
+        self._image_number = 0
 
-    def attack(self, enemy):
-        enemy._health -= self._attack
+    def update_image(self):
+        if self._image_number == 0:
+            self._image = pygame.image.load("PyGame\KnightImages\A.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 1:
+            self._image = pygame.image.load("PyGame\KnightImages\B.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 2:
+            self._image = pygame.image.load("PyGame\KnightImages\C.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 3:
+            self._image = pygame.image.load("PyGame\KnightImages\D.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 4:
+            self._image = pygame.image.load("PyGame\KnightImages\E.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 5:
+            self._image = pygame.image.load("PyGame\KnightImages\F.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 6:
+            self._image = pygame.image.load("PyGame\KnightImages\G.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 7:
+            self._image = pygame.image.load("PyGame\KnightImages\H.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        else:
+            self._image_number = 0
+
+        KNIGHT_ALLY_IMAGE = self._image 
 
 
 class Archer(Objects):
     def __init__(self, x, y, name, health, max_health, mana, attack, defense, speed, exp, level):
         super().__init__(x, y, name, health, max_health, mana, attack, defense, speed, exp, level)
-        self._image = ARCHER_ALLY
+        self._image = ("PyGame\KnightImages\A.png")
+        self._image_number = 0
 
-    def attack(self, enemy):
-        enemy._health -= self._attack
+    def update_image(self):
+        if self._image_number == 0:
+            self._image = pygame.image.load("PyGame\ArcherImages\A.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 1:
+            self._image = pygame.image.load("PyGame\ArcherImages\B.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 2:
+            self._image = pygame.image.load("PyGame\ArcherImages\C.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 3:
+            self._image = pygame.image.load("PyGame\ArcherImages\D.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 4:
+            self._image = pygame.image.load("PyGame\ArcherImages\E.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 5:
+            self._image = pygame.image.load("PyGame\ArcherImages\F.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 6:
+            self._image = pygame.image.load("PyGame\ArcherImages\G.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 7:
+            self._image = pygame.image.load("PyGame\ArcherImages\H.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 2.5, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        else:
+            self._image_number = 0
+
+        KNIGHT_ALLY_IMAGE = self._image
 
 
 class Mage(Objects):
     def __init__(self, x, y, name, health, max_health, mana, attack, defense, speed, exp, level):
         super().__init__(x, y, name, health, max_health, mana, attack, defense, speed, exp, level)
-        self._image = MAGE_ALLY
+        self._image_number = 0
 
-    def attack(self, enemy):
-        enemy._health -= self._attack
+    def update_image(self):
+        if self._image_number == 0:
+            self._image = pygame.image.load("PyGame\MageImages\A.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 1:
+            self._image = pygame.image.load("PyGame\MageImages\B.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 2:
+            self._image = pygame.image.load("PyGame\MageImages\C.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 3:
+            self._image = pygame.image.load("PyGame\MageImages\D.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 4:
+            self._image = pygame.image.load("PyGame\MageImages\E.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 5:
+            self._image = pygame.image.load("PyGame\MageImages\F.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 6:
+            self._image = pygame.image.load("PyGame\MageImages\G.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 7:
+            self._image = pygame.image.load("PyGame\MageImages\H.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 8:
+            self._image = pygame.image.load("PyGame\MageImages\I.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        else:
+            self._image_number = 0
+
+        MAGE_ALLY_IMAGE = self._image 
 
 
 class Enemy(Objects):
     def __init__(self, x, y, name, health, max_health, mana, attack, defense, speed, exp, level):
         super().__init__(x, y, name, health, max_health, mana, attack, defense, speed, exp, level)
-        self._image = ENEMY
+        self._image = ("PyGame\EnemyImages\A.png")
+        self._image_number = 0
+
+    def update_image(self):
+        if self._image_number == 0:
+            self._image = pygame.image.load("PyGame\EnemyImages\A.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 1:
+            self._image = pygame.image.load("PyGame\EnemyImages\B.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 2:
+            self._image = pygame.image.load("PyGame\EnemyImages\C.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 3:
+            self._image = pygame.image.load("PyGame\EnemyImages\D.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 4:
+            self._image = pygame.image.load("PyGame\EnemyImages\E.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 5:
+            self._image = pygame.image.load("PyGame\EnemyImages\F.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 6:
+            self._image = pygame.image.load("PyGame\EnemyImages\G.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 7:
+            self._image = pygame.image.load("PyGame\EnemyImages\H.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 8:
+            self._image = pygame.image.load("PyGame\EnemyImages\I.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        elif self._image_number == 9:
+            self._image = pygame.image.load("PyGame\EnemyImages\J.png")
+            self._image = pygame.transform.scale(self._image, (IMAGE_WIDTH * 3, IMAGE_HEIGHT * 3))
+            self._image_number += 1
+        else:
+            self._image_number = 0
+
+        ENEMY_ALLY_IMAG = self._image 
     
     def attack(self):
-        turn = random.randint(1, 3)
-        if turn == 1:
-            knight._health -= self._attack
-        elif turn == 2:
-            archer._health -= self._attack
-        else:
-            mage._health -= self._attack
+        return
 
 
 class HealthBar():
@@ -110,17 +258,21 @@ class HealthBar():
         self._max_hp = max_hp
     
     def draw(self, hp):
-
         self._hp = hp
         ratio = self._hp / self._max_hp
-        pygame.draw.rect(WIN, RED, [self._x, self._y, 200, 22])
-        pygame.draw.rect(WIN, GREEN, [self._x, self._y, 200 * ratio, 22])
+        pygame.draw.rect(WIN, RED, [self._x, self._y, 200 / 2, 22 / 2])
+        pygame.draw.rect(WIN, GREEN, [self._x, self._y, 200/ 2 * ratio, 22 / 2])
+
 
 def draw_window():
     WIN.blit(BACKGROUND, (0, 0))
+    knight.update_image()
     knight.draw()
+    archer.update_image()
     archer.draw()
+    mage.update_image()
     mage.draw()
+    enemy.update_image()
     enemy.draw()
     draw_name()
     knight_healthbar.draw(knight._health)
@@ -134,20 +286,20 @@ def draw_text(text, font, text_color, x, y):
     WIN.blit(img, (x, y))
 
 def draw_name():
-    draw_text(f"{knight._name}, HP: {knight._health}", font, BLUE, knight._x, knight._y- 40)
-    draw_text(f"{archer._name}, HP: {archer._health}", font, BLUE, archer._x, archer._y- 40)
-    draw_text(f"{mage._name}, HP: {mage._health}", font, BLUE, mage._x, mage._y- 40)
-    draw_text(f"{enemy._name}, HP: {enemy._health}", font, RED, enemy._x+ 120, enemy._y- 60)
+    draw_text(f"{knight._name}, HP: {knight._health}", font, BLUE, knight._x+100, knight._y+ 200)
+    draw_text(f"{archer._name}, HP: {archer._health}", font, BLUE, archer._x+ 100, archer._y+ 180)
+    draw_text(f"{mage._name}, HP: {mage._health}", font, BLUE, mage._x + 120, mage._y + 100)
+    draw_text(f"{enemy._name}, HP: {enemy._health}", font, RED, enemy._x+ 120, enemy._y + 140)
 
-knight = Knight(600, 700, "Knight", 100, 100, 0, 10, 5, 10, 0, 1)
-archer = Archer(50, 700, "Archer", 80, 80, 5, 7, 3, 25, 0, 1)
-mage = Mage(350, 700, "Mage", 75, 75, 20, 10, 2, 15, 0, 1)
-enemy = Enemy(1400, 580, "Enemy", 350, 350, 0, 10, 10, 5, 0, 1)
+knight = Knight(500 / 2, 200 / 2, "Knight", 100, 100, 0, 10, 5, 10, 0, 1)
+archer = Archer(-120 / 2, 200 / 2, "Archer", 80, 80, 5, 7, 3, 25, 0, 1)
+mage = Mage(100 / 2, 300 / 2, "Mage", 75, 75, 20, 10, 2, 15, 0, 1)
+enemy = Enemy(1200 / 2, 250 / 2, "Enemy", 350, 350, 0, 10, 10, 5, 0, 1)
 
-knight_healthbar = HealthBar(knight._x+ 20, knight._y - 70, knight._health, knight._max_health)
-archer_healthbar = HealthBar(archer._x, archer._y - 70, archer._health, archer._max_health)
-mage_healthbar = HealthBar(mage._x, mage._y - 70, mage._health, mage._max_health)
-enemy_healthbar = HealthBar(enemy._x + 130, enemy._y - 100, enemy._health, enemy._max_health)
+knight_healthbar = HealthBar(knight._x+110, knight._y + 180, knight._health, knight._max_health)
+archer_healthbar = HealthBar(archer._x+110, archer._y + 170, archer._health, archer._max_health)
+mage_healthbar = HealthBar( mage._x + 120, mage._y + 80, mage._health, mage._max_health)
+enemy_healthbar = HealthBar(enemy._x + 130, enemy._y + 130, enemy._health, enemy._max_health)
 
 def main():
     clock = pygame.time.Clock()
@@ -160,26 +312,13 @@ def main():
         
         draw_window()
         if knight._alive == True:
-            knight.attack(enemy)
+            knight.attack()
             enemy.check_alive()
             if enemy._alive == False:
                 print("Enemy is dead")
                 print("You win")
                 break
-        if archer._alive == True:
-            archer.attack(enemy)
-            enemy.check_alive()
-            if enemy._alive == False:
-                print("Enemy is dead")
-                print("You win")
-                break
-        if mage._alive == True:
-            mage.attack(enemy)
-            enemy.check_alive()
-            if enemy._alive == False:
-                print("Enemy is dead")
-                print("You win")
-                break
+            
         if enemy._alive == True:
             enemy.attack()
             knight.check_alive()
