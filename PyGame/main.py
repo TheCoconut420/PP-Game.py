@@ -13,6 +13,7 @@ total_fighters = 4
 action_cooldown = 0
 action_wait_time = 120
 attack = False
+run = True
 
 clicked = False
 game_over = 0
@@ -99,6 +100,8 @@ class Fighter():
         rand = random.randint(-5, 5)
         damage = self.strength + rand
         enemy.hp -= damage
+        damage_text = Damage_Text(enemy.x + 280, enemy.y + 150, str(damage), red)
+        damage_text_group.add(damage_text)
         if enemy.hp < 1:
             enemy.hp = 0
             enemy.alive = False
@@ -185,6 +188,8 @@ class Mage():
         rand = random.randint(-5, 5)
         damage = self.strength + rand
         enemy.hp -= damage
+        damage_text = Damage_Text(enemy.x + 280, enemy.y + 150, str(damage), red)
+        damage_text_group.add(damage_text)
         if enemy.hp < 1:
             enemy.hp = 0
             enemy.alive = False
@@ -272,10 +277,14 @@ class Enemy():
         if choose == 0:
             if knight.hp > 0:
                 knight.hp -= damage
+                damage_text = Damage_Text(knight.x + 250, enemy.y + 190, str(damage), red)
+                damage_text_group.add(damage_text)
                 if knight.hp < 1:
                     knight.hp = 0
                     knight.alive = False
                     knight.dead()
+                    mage.strength += 3
+                    archer.strength += 3
                 else:
                     knight.hurt()
             else:
@@ -283,10 +292,14 @@ class Enemy():
         elif choose == 1:
             if mage.hp > 0:
                 mage.hp -= damage
+                damage_text = Damage_Text(mage.x + 250, enemy.y + 130, str(damage), red)
+                damage_text_group.add(damage_text)
                 if mage.hp < 1:
                     mage.hp = 0
                     mage.alive = False
                     mage.dead()
+                    knight.strength += 3
+                    archer.strength += 3
                 else:
                     mage.hurt()
             else:
@@ -294,25 +307,69 @@ class Enemy():
         elif choose == 2:
             if archer.hp > 0:
                 archer.hp -= damage
+                damage_text = Damage_Text(archer.x + 240, enemy.y + 190, str(damage), red)
+                damage_text_group.add(damage_text)
                 if archer.hp < 1:
                     archer.hp = 0
                     archer.alive = False
                     archer.dead()
+                    knight.strength += 3
+                    mage.strength += 3
                 else:
                     archer.hurt()
             else:
                 self.attack_attack()
 
+    def aoe_attack(self):
+        rand = random.randint(3, 5)
+        damage = self.strength + rand
+        if knight.hp > 0:
+                knight.hp -= damage
+                damage_text = Damage_Text(knight.x + 250, enemy.y + 190, str(damage), red)
+                damage_text_group.add(damage_text)
+                if knight.hp < 1:
+                    knight.hp = 0
+                    knight.alive = False
+                    knight.dead()
+                    mage.strength += 3
+                    archer.strength += 3
+                else:
+                    knight.hurt()
+        if mage.hp > 0:
+                mage.hp -= damage
+                damage_text = Damage_Text(mage.x + 250, enemy.y + 130, str(damage), red)
+                damage_text_group.add(damage_text)
+                if mage.hp < 1:
+                    mage.hp = 0
+                    mage.alive = False
+                    mage.dead()
+                    knight.strength += 3
+                    archer.strength += 3
+                else:
+                    mage.hurt()
+        if archer.hp > 0:
+                archer.hp -= damage
+                damage_text = Damage_Text(archer.x + 240, enemy.y + 190, str(damage), red)
+                damage_text_group.add(damage_text)
+                if archer.hp < 1:
+                    archer.hp = 0
+                    archer.alive = False
+                    archer.dead()
+                    knight.strength += 3
+                    mage.strength += 3
+                else:
+                    archer.hurt()
+
     def attack(self):
-        i = random.randint(0, 2)
+        i = random.randint(1, 3)
         self.action = 1
         self.frame_index = 0
         self.update_time = pygame.time.get_ticks()
-        self.attack_attack()
-        while i > 0:
+        if i == 3:
+            self.aoe_attack()
+        else:
             self.attack_attack()
-            i -= 1
-
+        print(i)
 
     def idle(self):
         self.action = 0
@@ -393,6 +450,8 @@ class Archer():
         rand = random.randint(-5, 5)
         damage = self.strength + rand
         enemy.hp -= damage
+        damage_text = Damage_Text(enemy.x + 280, enemy.y + 150, str(damage), red)
+        damage_text_group.add(damage_text)
         if enemy.hp < 1:
             enemy.hp = 0
             enemy.alive = False
@@ -445,17 +504,33 @@ class HealthBar():
         pygame.draw.rect(screen, green, (self.x, self.y, 150 * ratio, 20))
 
 
+class Damage_Text(pygame.sprite.Sprite):
+    def __init__(self, x, y, damage, colour):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = font.render(f'{damage}', True, colour)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.counter = 0
+
+    def update(self):
+        self.rect.y -= 1
+        self.counter += 1
+        if self.counter > 20:
+            self.kill()
+
+damage_text_group = pygame.sprite.Group()
+
+
 knight = Fighter(450, 160, 'Knight', 40, random.randint(8, 12))
 mage = Mage(-100, 200, 'Mage', 40, random.randint(6, 14))
 archer = Archer(150, 160, 'Archer', 40, 10)
-enemy = Enemy(780, 163, 'Enemy', 150, 7)
+enemy = Enemy(780, 163, 'Enemy', 1500, 7)
 
 knight_health_bar = HealthBar(knight.x + 170, knight.y + 250, knight.hp, knight.max_hp)
 mage_health_bar = HealthBar(mage.x + 170, mage.y + 140, mage.hp, mage.max_hp)
 archer_health_bar = HealthBar(archer.x + 160, archer.y + 240, archer.hp, archer.max_hp)
 enemy_health_bar = HealthBar(enemy.x + 200, enemy.y + 200, enemy.hp, enemy.max_hp)
 
-run = True
 while run:
 
     clock.tick(fps)
@@ -469,6 +544,8 @@ while run:
 
     knight.update()
     knight.draw()
+    damage_text_group.update()
+    damage_text_group.draw(screen)
     enemy.update()
     enemy.draw()
     mage.update()
@@ -504,7 +581,6 @@ while run:
                         else:
                             current_fighter = 4
                             action_cooldown = 0
-                        print(f"After Knight: {current_fighter}")
 
     if game_over ==  0 or game_over == -1 :	
         if archer.alive == True:
@@ -518,8 +594,7 @@ while run:
                             action_cooldown = 0
                         else:
                             current_fighter = 4
-                            action_cooldown = 0
-                        print(f"After Archer: {current_fighter}")
+                            action_cooldown = 0                     
 
     if game_over ==  0 or game_over == -1:
         if mage.alive == True:
@@ -529,8 +604,7 @@ while run:
                     if attack == True and enemy != None:
                         mage.attack()
                         current_fighter = 4
-                        action_cooldown = 0
-                        print(f"After Mage: {current_fighter}")
+                        action_cooldown = 0                    
 
     if game_over ==  0 or game_over == -1:
         if enemy.alive == True:
@@ -546,8 +620,7 @@ while run:
                         action_cooldown = 0
                     else:
                         current_fighter = 3
-                        action_cooldown = 0
-                    print(f"After Enemy: {current_fighter}")
+                        action_cooldown = 0                
         else:
             game_over = 1
     
