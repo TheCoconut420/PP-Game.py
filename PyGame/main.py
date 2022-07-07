@@ -1,36 +1,48 @@
 import pygame
 import random
-
 pygame.init()
 
+#initialize parameters
 clock = pygame.time.Clock()
 fps = 60
 font = pygame.font.SysFont('Times New Roman', 26)
 game_end = pygame.font.SysFont('Times New Roman', 70)
-
 current_fighter = 1
-total_fighters = 4
 action_cooldown = 0
-action_wait_time = 120
+action_wait_time = 90
 attack = False
 run = True
-
 clicked = False
 game_over = 0
+
+#colors
 red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 white = (255, 255, 255)
 black = (170, 170, 170)
 
+#screen setup
 screen_width = 1280
 screen_height = 720
-
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('RPG Battle')
 
+#initialize images
 background_img = pygame.image.load('PyGame\Background.jpg')
-background_img = pygame.transform.scale(background_img, (screen_width, screen_height))
+background_img = pygame.transform.scale(background_img, (screen_width, screen_height)).convert_alpha()
+sword_img = pygame.image.load('PyGame\Sword.png')
+sword_img = pygame.transform.scale(sword_img, (100, 100)).convert_alpha()
+bow_img = pygame.image.load('PyGame\Bow.png')
+bow_img = pygame.transform.scale(bow_img, (50, 100)).convert_alpha()
+fire_img = pygame.image.load('PyGame\Fire.png')
+fire_img = pygame.transform.scale(fire_img, (100, 100)).convert_alpha()
+heart_red_img = pygame.image.load('PyGame\Heart_Red.png')
+heart_red_img = pygame.transform.scale(heart_red_img, (50, 50)).convert_alpha()
+heart_blue_img = pygame.image.load('PyGame\Heart_Blue.png')
+heart_blue_img = pygame.transform.scale(heart_blue_img, (50, 50)).convert_alpha()
+heart_green_img = pygame.image.load('PyGame\Heart_Green.png')
+heart_green_img = pygame.transform.scale(heart_green_img, (50, 50)).convert_alpha()
 
 def draw_bg():
     screen.blit(background_img, (0, 0))
@@ -46,13 +58,13 @@ def draw_win():
     draw_text("VICTORY", game_end, green, screen_width/2 - 100, screen_height/4)
 
 def draw_name():
-    draw_text(f"Knight, HP: {knight.hp}", font, white, knight.x+166, knight.y+ 215)
-    draw_text(f"Mage, HP: {mage.hp}", font, white, mage.x+170, mage.y+ 100)
-    draw_text(f"Archer, HP: {archer.hp}", font, white, archer.x+155, archer.y+ 200)
-    draw_text(f"Enemy, HP: {enemy.hp}", font, white, enemy.x+ 200, enemy.y + 160)
+    draw_text(f"Knight, HP: {knight.hp}", font, white, knight.x+120, knight.y+ 175)
+    draw_text(f"Mage, HP: {mage.hp}", font, white, mage.x+120, mage.y+ 65)
+    draw_text(f"Archer, HP: {archer.hp}", font, white, archer.x+110, archer.y+ 165)
+    draw_text(f"Enemy, HP: {enemy.hp}", font, white, enemy.x+ 135, enemy.y + 135)
 
 
-class Fighter():
+class Objects():
     def __init__(self, x, y, name, max_hp, strength):
         self.name = name
         self.max_hp = max_hp
@@ -63,212 +75,213 @@ class Fighter():
         self.frame_index = 0
         self.action = 0
         self.update_time = pygame.time.get_ticks()
-        temp_list = []
         self.x = x
         self.y = y
+
+    def attack(self):
+        self.action = 1
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
+        rand = random.randint(-5, 5)
+        damage = self.strength + rand
+        enemy.hp -= damage
+        damage_text = Damage_Text(enemy.x + 220, enemy.y + 110, str(damage), red)
+        damage_text_group.add(damage_text)
+        if enemy.hp < 1:
+            enemy.hp = 0
+            enemy.alive = False
+            enemy.dead()
+        else:
+            enemy.hurt()
+
+    def idle(self):
+        self.action = 0
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
+
+    def hurt(self):
+        self.action = 2
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
+
+    def dead(self):
+        self.action = 3
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
+
+    def draw(self):
+        screen.blit(self.image, (self.x, self.y))
+
+    def update(self):
+        animation_cooldown = 40
+        self.image = self.animation_list[self.action][self.frame_index]
+        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+            self.update_time = pygame.time.get_ticks()
+            self.frame_index += 1
+        if self.frame_index >= len(self.animation_list[self.action]):
+            if self.action == 3:
+                self.frame_index = len(self.animation_list[self.action]) - 1
+            else:
+                self.idle()
+
+
+class Knight(Objects):
+    def __init__(self, x, y, name, max_hp, strength):
+        super().__init__(x, y, name, max_hp, strength)
+        temp_list = []
         for i in range(8):
             img = pygame.image.load(f'PyGame\KnightImages\Idle{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
+            img = pygame.transform.scale(img, (400, 400))
             temp_list.append(img)
         self.animation_list.append(temp_list)
         temp_list = []
         for i in range(20):
             img = pygame.image.load(f'PyGame\KnightImages\Attack_{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
+            img = pygame.transform.scale(img, (400, 400))
             temp_list.append(img)
         self.animation_list.append(temp_list)
         self.image = self.animation_list[self.action][self.frame_index]
         temp_list = []
         for i in range(6):
             img = pygame.image.load(f'PyGame\KnightImages\Hit_{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
+            img = pygame.transform.scale(img, (400, 400))
             temp_list.append(img)
         self.animation_list.append(temp_list)
         self.image = self.animation_list[self.action][self.frame_index]
         temp_list = []
         for i in range(10):
             img = pygame.image.load(f'PyGame\KnightImages\Dead_{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
+            img = pygame.transform.scale(img, (400, 400))
             temp_list.append(img)
         self.animation_list.append(temp_list)
         self.image = self.animation_list[self.action][self.frame_index]
-
-    def attack(self):
-        self.action = 1
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-        rand = random.randint(-5, 5)
-        damage = self.strength + rand
-        enemy.hp -= damage
-        damage_text = Damage_Text(enemy.x + 280, enemy.y + 150, str(damage), red)
-        damage_text_group.add(damage_text)
-        if enemy.hp < 1:
-            enemy.hp = 0
-            enemy.alive = False
-            enemy.dead()
-        else:
-            enemy.hurt()
-
-    def idle(self):
-        self.action = 0
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def hurt(self):
-        self.action = 2
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def dead(self):
-        self.action = 3
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def draw(self):
-        screen.blit(self.image, (self.x, self.y))
-
-    def update(self):
-        animation_cooldown = 40
-        self.image = self.animation_list[self.action][self.frame_index]
-        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
-            self.update_time = pygame.time.get_ticks()
-            self.frame_index += 1
-        if self.frame_index >= len(self.animation_list[self.action]):
-            if self.action == 3:
-                self.frame_index = len(self.animation_list[self.action]) - 1
-            else:
-                self.idle()
+        self.rect = self.image.get_rect()
+        self.rect.center = (x+ 200, y+ 300)
 
 
-class Mage():
+class Archer(Objects):
     def __init__(self, x, y, name, max_hp, strength):
-        self.name = name
-        self.max_hp = max_hp
-        self.hp = max_hp
-        self.strength = strength
-        self.alive = True
-        self.animation_list = []
-        self.frame_index = 0
-        self.action = 0
-        self.update_time = pygame.time.get_ticks()
+        super().__init__(x, y, name, max_hp, strength)
         temp_list = []
-        self.x = x
-        self.y = y
+        for i in range(8):
+            img = pygame.image.load(f'PyGame\ArcherImages\Idle{i}.png')
+            img = pygame.transform.scale(img, (400, 400))
+            temp_list.append(img)
+        self.animation_list.append(temp_list)
+        temp_list = []
+        for i in range(17):
+            img = pygame.image.load(f'PyGame\ArcherImages\Attack_{i}.png')
+            img = pygame.transform.scale(img, (400, 400))
+            temp_list.append(img)
+        self.animation_list.append(temp_list)
+        self.image = self.animation_list[self.action][self.frame_index]
+        temp_list = []
+        for i in range(5):
+            img = pygame.image.load(f'PyGame\ArcherImages\Hit_{i}.png')
+            img = pygame.transform.scale(img, (400, 400))
+            temp_list.append(img)
+        self.animation_list.append(temp_list)
+        self.image = self.animation_list[self.action][self.frame_index]
+        temp_list = []
+        for i in range(12):
+            img = pygame.image.load(f'PyGame\ArcherImages\Dead_{i}.png')
+            img = pygame.transform.scale(img, (400, 400))
+            temp_list.append(img)
+        self.animation_list.append(temp_list)
+        self.image = self.animation_list[self.action][self.frame_index]
+        self.rect = self.image.get_rect()
+        self.rect.center = (x + 230, y + 300)
+
+
+class Mage(Objects):
+    def __init__(self, x, y, name, max_hp, strength):
+        super().__init__(x, y, name, max_hp, strength)
+        temp_list = []
         for i in range(9):
             img = pygame.image.load(f'PyGame\MageImages\Idle{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
+            img = pygame.transform.scale(img, (400, 400))
             temp_list.append(img)
         self.animation_list.append(temp_list)
         temp_list = []
         for i in range(19):
             img = pygame.image.load(f'PyGame\MageImages\Attack_{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
+            img = pygame.transform.scale(img, (400, 400))
             temp_list.append(img)
         self.animation_list.append(temp_list)
         self.image = self.animation_list[self.action][self.frame_index]
         temp_list = []
         for i in range(6):
             img = pygame.image.load(f'PyGame\MageImages\Hit_{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
+            img = pygame.transform.scale(img, (400, 400))
             temp_list.append(img)
         self.animation_list.append(temp_list)
         self.image = self.animation_list[self.action][self.frame_index]
         temp_list = []
         for i in range(17):
             img = pygame.image.load(f'PyGame\MageImages\Dead_{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
+            img = pygame.transform.scale(img, (400, 400))
             temp_list.append(img)
         self.animation_list.append(temp_list)
-        self.image = self.animation_list[self.action][self.frame_index]#
-
-    def attack(self):
-        self.action = 1
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-        rand = random.randint(-5, 5)
-        damage = self.strength + rand
-        enemy.hp -= damage
-        damage_text = Damage_Text(enemy.x + 280, enemy.y + 150, str(damage), red)
-        damage_text_group.add(damage_text)
-        if enemy.hp < 1:
-            enemy.hp = 0
-            enemy.alive = False
-            enemy.dead()
-        else:
-            enemy.hurt()
-
-    def idle(self):
-        self.action = 0
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def hurt(self):
-        self.action = 2
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def dead(self):
-        self.action = 3
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def draw(self):
-        screen.blit(self.image, (self.x, self.y))
-
-    def update(self):
-        animation_cooldown = 40
         self.image = self.animation_list[self.action][self.frame_index]
-        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
-            self.update_time = pygame.time.get_ticks()
-            self.frame_index += 1
-        if self.frame_index >= len(self.animation_list[self.action]):
-            if self.action == 3:
-                self.frame_index = len(self.animation_list[self.action]) - 1
-            else:
-                self.idle()
+        self.rect = self.image.get_rect()
+        self.rect.center = (x + 170, y+ 250)
+
+    def heal(self):
+        heal = random.randint(7, 15)
+        if healing == 1:
+            knight.hp += heal
+            if knight.hp > knight.max_hp:
+                knight.hp = knight.max_hp
+            heal_text = Heal_Text(knight.x + 210, enemy.y + 150, str(heal), green)
+            heal_text_group.add(heal_text)
+        elif healing == 2:
+            archer.hp += heal
+            if archer.hp > archer.max_hp:
+                archer.hp = archer.max_hp
+            heal_text = Heal_Text(archer.x + 210, enemy.y + 150, str(heal), green)
+            heal_text_group.add(heal_text)
+        elif healing == 3:
+            mage.hp += heal
+            if mage.hp > mage.max_hp:
+                mage.hp = mage.max_hp
+            heal_text = Heal_Text(mage.x + 210, enemy.y + 90, str(heal), green)
+            heal_text_group.add(heal_text)
 
 
-class Enemy():
+class Enemy(Objects):
     def __init__(self, x, y, name, max_hp, strength):
-        self.name = name
-        self.max_hp = max_hp
-        self.hp = max_hp
-        self.strength = strength
-        self.alive = True
-        self.animation_list = []
-        self.frame_index = 0
-        self.action = 0
-        self.update_time = pygame.time.get_ticks()
+        super().__init__(x, y, name, max_hp, strength)
         temp_list = []
-        self.x = x
-        self.y = y
         for i in range(13):
             img = pygame.image.load(f'PyGame\EnemyImages\Idle{i}.png')
-            img = pygame.transform.scale(img, (540, 540))
+            img = pygame.transform.scale(img, (440, 440))
             temp_list.append(img)
         self.animation_list.append(temp_list)
         self.image = self.animation_list[self.action][self.frame_index]
         temp_list = []
         for i in range(6, 21):
             img = pygame.image.load(f'PyGame\EnemyImages\Attack_{i}.png')
-            img = pygame.transform.scale(img, (540, 540))
+            img = pygame.transform.scale(img, (440, 440))
             temp_list.append(img)
             temp_list.append(img)
         self.animation_list.append(temp_list)
         temp_list = []
         for i in range(12):
             img = pygame.image.load(f'PyGame\EnemyImages\Hit_{i}.png')
-            img = pygame.transform.scale(img, (540, 540))
+            img = pygame.transform.scale(img, (440, 440))
             temp_list.append(img)
             temp_list.append(img)
         self.animation_list.append(temp_list)
         temp_list = []
         for i in range(15):
             img = pygame.image.load(f'PyGame\EnemyImages\Dead_{i}.png')
-            img = pygame.transform.scale(img, (540, 540))
+            img = pygame.transform.scale(img, (440, 440))
             temp_list.append(img)
             temp_list.append(img)
         self.animation_list.append(temp_list)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x + 180, y + 260)
+
 
     def attack_attack(self):
         rand = random.randint(1, 5)
@@ -369,125 +382,6 @@ class Enemy():
             self.aoe_attack()
         else:
             self.attack_attack()
-        print(i)
-
-    def idle(self):
-        self.action = 0
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def hurt(self):
-        self.action = 2
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def dead(self):
-        self.action = 3
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def update(self):
-        animation_cooldown = 40
-        self.image = self.animation_list[self.action][self.frame_index]
-        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
-            self.update_time = pygame.time.get_ticks()
-            self.frame_index += 1
-        if self.frame_index >= len(self.animation_list[self.action]):
-            if self.action == 3:
-                self.frame_index = len(self.animation_list[self.action]) - 1
-            else:
-                self.idle()
-
-    def draw(self):
-        screen.blit(self.image, (self.x, self.y))
-
-
-class Archer():
-    def __init__(self, x, y, name, max_hp, strength):
-        self.name = name
-        self.max_hp = max_hp
-        self.hp = max_hp
-        self.strength = strength
-        self.alive = True
-        self.animation_list = []
-        self.frame_index = 0
-        self.action = 0
-        self.update_time = pygame.time.get_ticks()
-        temp_list = []
-        self.x = x
-        self.y = y
-        for i in range(8):
-            img = pygame.image.load(f'PyGame\ArcherImages\Idle{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
-            temp_list.append(img)
-        self.animation_list.append(temp_list)
-        temp_list = []
-        for i in range(17):
-            img = pygame.image.load(f'PyGame\ArcherImages\Attack_{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
-            temp_list.append(img)
-        self.animation_list.append(temp_list)
-        self.image = self.animation_list[self.action][self.frame_index]
-        temp_list = []
-        for i in range(5):
-            img = pygame.image.load(f'PyGame\ArcherImages\Hit_{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
-            temp_list.append(img)
-        self.animation_list.append(temp_list)
-        self.image = self.animation_list[self.action][self.frame_index]
-        temp_list = []
-        for i in range(12):
-            img = pygame.image.load(f'PyGame\ArcherImages\Dead_{i}.png')
-            img = pygame.transform.scale(img, (500, 500))
-            temp_list.append(img)
-        self.animation_list.append(temp_list)
-        self.image = self.animation_list[self.action][self.frame_index]
-
-    def attack(self):
-        self.action = 1
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-        rand = random.randint(-5, 5)
-        damage = self.strength + rand
-        enemy.hp -= damage
-        damage_text = Damage_Text(enemy.x + 280, enemy.y + 150, str(damage), red)
-        damage_text_group.add(damage_text)
-        if enemy.hp < 1:
-            enemy.hp = 0
-            enemy.alive = False
-            enemy.dead()
-        else:
-            enemy.hurt()
-
-    def idle(self):
-        self.action = 0
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def hurt(self):
-        self.action = 2
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def dead(self):
-        self.action = 3
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks()
-
-    def draw(self):
-        screen.blit(self.image, (self.x, self.y))
-
-    def update(self):
-        animation_cooldown = 40
-        self.image = self.animation_list[self.action][self.frame_index]
-        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
-            self.update_time = pygame.time.get_ticks()
-            self.frame_index += 1
-        if self.frame_index >= len(self.animation_list[self.action]):
-            if self.action == 3:
-                self.frame_index = len(self.animation_list[self.action]) - 1
-            else:
-                self.idle()
 
 
 class HealthBar():
@@ -518,21 +412,37 @@ class Damage_Text(pygame.sprite.Sprite):
         if self.counter > 20:
             self.kill()
 
+
+class Heal_Text(pygame.sprite.Sprite):
+    def __init__(self, x, y, heal, colour):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = font.render(f'{heal}', True, colour)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.counter = 0
+    
+    def update(self):
+        self.rect.y -= 1
+        self.counter += 1
+        if self.counter > 20:
+            self.kill()
+
+
+#initialize characters
+knight = Knight(500, 260, 'Knight', 40, random.randint(8, 12))
+mage = Mage(-100, 300, 'Mage', 40, random.randint(6, 14))
+archer = Archer(200, 260, 'Archer', 40, 10)
+enemy = Enemy(900, 263, 'Enemy', 150, 7)
 damage_text_group = pygame.sprite.Group()
+heal_text_group = pygame.sprite.Group()
 
-
-knight = Fighter(450, 160, 'Knight', 40, random.randint(8, 12))
-mage = Mage(-100, 200, 'Mage', 40, random.randint(6, 14))
-archer = Archer(150, 160, 'Archer', 40, 10)
-enemy = Enemy(780, 163, 'Enemy', 1500, 7)
-
-knight_health_bar = HealthBar(knight.x + 170, knight.y + 250, knight.hp, knight.max_hp)
-mage_health_bar = HealthBar(mage.x + 170, mage.y + 140, mage.hp, mage.max_hp)
-archer_health_bar = HealthBar(archer.x + 160, archer.y + 240, archer.hp, archer.max_hp)
-enemy_health_bar = HealthBar(enemy.x + 200, enemy.y + 200, enemy.hp, enemy.max_hp)
+#initialize health bars
+knight_health_bar = HealthBar(knight.x + 125, knight.y + 210, knight.hp, knight.max_hp)
+mage_health_bar = HealthBar(mage.x + 120, mage.y + 100, mage.hp, mage.max_hp)
+archer_health_bar = HealthBar(archer.x + 110, archer.y + 200, archer.hp, archer.max_hp)
+enemy_health_bar = HealthBar(enemy.x + 140, enemy.y + 170, enemy.hp, enemy.max_hp)
 
 while run:
-
     clock.tick(fps)
     draw_bg()
 
@@ -546,24 +456,87 @@ while run:
     knight.draw()
     damage_text_group.update()
     damage_text_group.draw(screen)
+    heal_text_group.update()
+    heal_text_group.draw(screen)
     enemy.update()
     enemy.draw()
     mage.update()
     mage.draw()
     archer.update()
     archer.draw()
-    enemy_list = [enemy]
 
     attack = False
-    potion = False
     target = None
 
-    pygame.mouse.set_visible(True)
-    pos = pygame.mouse.get_pos()
-    for count, enemy in enumerate(enemy_list):
-        if clicked == True:
-            attack = True
-            target = enemy_list[count]
+    posx = pygame.mouse.get_pos()[0]
+    posy = pygame.mouse.get_pos()[1]
+    if current_fighter == 1:
+        if enemy.rect.collidepoint(posx, posy):
+            pygame.mouse.set_visible(False)
+            screen.blit(sword_img, (posx - 50, posy - 50))
+            if clicked == True:
+                attack = True
+                target = enemy
+        else:
+            pygame.mouse.set_visible(True)
+
+    elif current_fighter == 2:
+        if enemy.rect.collidepoint(posx, posy):
+            pygame.mouse.set_visible(False)
+            screen.blit(sword_img, (posx - 50, posy - 50))
+            if clicked == True:
+                attack = True
+                target = enemy
+        else:
+            pygame.mouse.set_visible(True)
+
+    elif current_fighter == 3:
+        pygame.mouse.set_visible(False)
+        if knight.rect.collidepoint(posx, posy):
+            screen.blit(heart_red_img, (posx - 50, posy - 50))
+            if knight.hp < 1:
+                pass
+            else:    
+                if clicked == True:
+                    healing = 1
+                    mage.heal()
+                    current_fighter = 4
+                    action_cooldown = 0
+                
+        elif archer.rect.collidepoint(posx, posy):
+            screen.blit(heart_blue_img, (posx - 50, posy - 50))
+            if archer.hp < 1:
+                pass
+            else:
+                if clicked == True:
+                    healing = 2
+                    mage.heal()
+                    current_fighter = 4
+                    action_cooldown = 0
+
+        elif mage.rect.collidepoint(posx, posy):
+            screen.blit(heart_green_img, (posx - 50, posy - 50))
+            if mage.hp < 1:
+                pass
+            else:
+                if clicked == True:
+                    healing = 3
+                    mage.heal()
+                    current_fighter = 4
+                    action_cooldown = 0
+
+        elif enemy.rect.collidepoint(posx-50, posy-50):
+            screen.blit(fire_img, (posx - 50, posy - 50))
+            if clicked == True:
+                attack = True
+                target = enemy
+        else:
+            pygame.mouse.set_visible(True)
+
+    
+    else:
+        pygame.mouse.set_visible(True)
+
 
     if game_over ==  0 or game_over == -1:	
         if knight.alive == True:
@@ -643,5 +616,15 @@ while run:
 
     pygame.display.update()
 
-
 pygame.quit()
+
+#ideas:
+#special for the knight: if he is attacked, he has a chance of an counterattack
+#                        he can take the damage for an ally (symbol = shield)
+#
+#special for the archer: if he attacks, he has a chance of another attack
+#                        he can increase the damage of an ally (symbol = fist)
+#
+#special for the mage:  chance of getting a heal when attacked
+#                       increasing max hp of an ally
+#                       chance of avoiding an attack
