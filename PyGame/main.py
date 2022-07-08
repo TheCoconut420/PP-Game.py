@@ -43,6 +43,12 @@ heart_blue_img = pygame.image.load('PyGame\Heart_Blue.png')
 heart_blue_img = pygame.transform.scale(heart_blue_img, (50, 50)).convert_alpha()
 heart_green_img = pygame.image.load('PyGame\Heart_Green.png')
 heart_green_img = pygame.transform.scale(heart_green_img, (50, 50)).convert_alpha()
+shield_blue = pygame.image.load('PyGame\Shield_Blue.png')
+shield_blue = pygame.transform.scale(shield_blue, (100, 100)).convert_alpha()
+shield_red = pygame.image.load('PyGame\Shield_Red.png')
+shield_red = pygame.transform.scale(shield_red, (100, 100)).convert_alpha()
+shield_green = pygame.image.load('PyGame\Shield_Green.png')
+shield_green = pygame.transform.scale(shield_green, (100, 100)).convert_alpha()
 
 def draw_bg():
     screen.blit(background_img, (0, 0))
@@ -249,8 +255,9 @@ class Mage(Objects):
 
 
 class Enemy(Objects):
-    def __init__(self, x, y, name, max_hp, strength):
+    def __init__(self, x, y, name, max_hp, strength, defend):
         super().__init__(x, y, name, max_hp, strength)
+        self.defend = defend
         temp_list = []
         for i in range(13):
             img = pygame.image.load(f'PyGame\EnemyImages\Idle{i}.png')
@@ -281,57 +288,6 @@ class Enemy(Objects):
         self.animation_list.append(temp_list)
         self.rect = self.image.get_rect()
         self.rect.center = (x + 180, y + 260)
-
-
-    def attack_attack(self):
-        rand = random.randint(1, 5)
-        damage = self.strength + rand
-        choose = random.randint(0, 2)
-        if choose == 0:
-            if knight.hp > 0:
-                knight.hp -= damage
-                damage_text = Damage_Text(knight.x + 250, enemy.y + 190, str(damage), red)
-                damage_text_group.add(damage_text)
-                if knight.hp < 1:
-                    knight.hp = 0
-                    knight.alive = False
-                    knight.dead()
-                    mage.strength += 3
-                    archer.strength += 3
-                else:
-                    knight.hurt()
-            else:
-                self.attack_attack()
-        elif choose == 1:
-            if mage.hp > 0:
-                mage.hp -= damage
-                damage_text = Damage_Text(mage.x + 250, enemy.y + 130, str(damage), red)
-                damage_text_group.add(damage_text)
-                if mage.hp < 1:
-                    mage.hp = 0
-                    mage.alive = False
-                    mage.dead()
-                    knight.strength += 3
-                    archer.strength += 3
-                else:
-                    mage.hurt()
-            else:
-                self.attack_attack()
-        elif choose == 2:
-            if archer.hp > 0:
-                archer.hp -= damage
-                damage_text = Damage_Text(archer.x + 240, enemy.y + 190, str(damage), red)
-                damage_text_group.add(damage_text)
-                if archer.hp < 1:
-                    archer.hp = 0
-                    archer.alive = False
-                    archer.dead()
-                    knight.strength += 3
-                    mage.strength += 3
-                else:
-                    archer.hurt()
-            else:
-                self.attack_attack()
 
     def aoe_attack(self):
         rand = random.randint(3, 5)
@@ -381,7 +337,76 @@ class Enemy(Objects):
         if i == 3:
             self.aoe_attack()
         else:
+            i = random.randint(1, 3)
+            if i == 1:
+                self.attack_knight()
+            elif i == 2:
+                self.attack_mage()
+            else:
+                self.attack_archer()
+
+    def attack_knight(self):
+        rand = random.randint(1, 5)
+        damage = self.strength + rand
+        self.defend = 0
+        if knight.hp > 0:
+            knight.hp -= damage
+            damage_text = Damage_Text(knight.x + 250, enemy.y + 190, str(damage), red)
+            damage_text_group.add(damage_text)
+            if knight.hp < 1:
+                knight.hp = 0
+                knight.alive = False
+                knight.dead()
+                mage.strength += 3
+                archer.strength += 3
+            else:
+                knight.hurt()
+        else:
             self.attack_attack()
+
+    def attack_mage(self):
+        if self.defend == 3:
+            self.attack_knight()
+            self.defend = 0
+        else:
+            rand = random.randint(1, 5)
+            damage = self.strength + rand
+            if mage.hp > 0:
+                mage.hp -= damage
+                damage_text = Damage_Text(mage.x + 250, enemy.y + 130, str(damage), red)
+                damage_text_group.add(damage_text)
+                if mage.hp < 1:
+                    mage.hp = 0
+                    mage.alive = False
+                    mage.dead()
+                    knight.strength += 3
+                    archer.strength += 3
+                else:
+                    mage.hurt()
+            else:
+                self.attack_attack()
+
+    def attack_archer(self):
+        if self.defend == 2:
+            self.attack_knight()
+            self.defend = 0
+        else:
+            rand = random.randint(1, 5)
+            damage = self.strength + rand
+            if archer.hp > 0:
+                archer.hp -= damage
+                damage_text = Damage_Text(archer.x + 240, enemy.y + 190, str(damage), red)
+                damage_text_group.add(damage_text)
+                if archer.hp < 1:
+                    archer.hp = 0
+                    archer.alive = False
+                    archer.dead()
+                    knight.strength += 3
+                    mage.strength += 3
+                else:
+                    archer.hurt()
+            else:
+                self.attack_attack()
 
 
 class HealthBar():
@@ -432,7 +457,7 @@ class Heal_Text(pygame.sprite.Sprite):
 knight = Knight(500, 260, 'Knight', 40, random.randint(8, 12))
 mage = Mage(-100, 300, 'Mage', 40, random.randint(6, 14))
 archer = Archer(200, 260, 'Archer', 40, 10)
-enemy = Enemy(900, 263, 'Enemy', 150, 7)
+enemy = Enemy(900, 263, 'Enemy', 150, 7, 0)
 damage_text_group = pygame.sprite.Group()
 heal_text_group = pygame.sprite.Group()
 
@@ -477,9 +502,56 @@ while run:
             if clicked == True:
                 attack = True
                 target = enemy
-        else:
-            pygame.mouse.set_visible(True)
+        elif knight.rect.collidepoint(posx, posy):
+            pygame.mouse.set_visible(False)
+            screen.blit(shield_blue, (posx - 50, posy - 50))
+            if clicked == True:
+                enemy.defend = 1
+                if archer.hp > 0:
+                    current_fighter = 2
+                    action_cooldown = 0
+                elif mage.hp > 0:
+                    current_fighter = 3
+                    action_cooldown = 0
+                else:
+                    current_fighter = 4
+                    action_cooldown = 0
+                    
+        elif mage.rect.collidepoint(posx, posy):
+            pygame.mouse.set_visible(False)
+            screen.blit(shield_red, (posx - 50, posy - 50))
+            if clicked == True:
+                enemy.defend = 3
+                if archer.hp > 0:
+                    current_fighter = 2
+                    action_cooldown = 0
+                elif mage.hp > 0:
+                    current_fighter = 3
+                    action_cooldown = 0
+                else:
+                    current_fighter = 4
+                    action_cooldown = 0
+                
+            else:
+                pass
 
+        elif archer.rect.collidepoint(posx, posy):
+            pygame.mouse.set_visible(False)
+            screen.blit(shield_green, (posx - 50, posy - 50))
+            if clicked == True:
+                enemy.defend = 2
+                if archer.hp > 0:
+                    current_fighter = 2
+                    action_cooldown = 0
+                elif mage.hp > 0:
+                    current_fighter = 3
+                    action_cooldown = 0
+                else:
+                    current_fighter = 4
+                    action_cooldown = 0
+            else:
+                pass    
+                
     elif current_fighter == 2:
         if enemy.rect.collidepoint(posx, posy):
             pygame.mouse.set_visible(False)
@@ -491,47 +563,48 @@ while run:
             pygame.mouse.set_visible(True)
 
     elif current_fighter == 3:
-        pygame.mouse.set_visible(False)
-        if knight.rect.collidepoint(posx, posy):
-            screen.blit(heart_red_img, (posx - 50, posy - 50))
-            if knight.hp < 1:
-                pass
-            else:    
-                if clicked == True:
-                    healing = 1
-                    mage.heal()
-                    current_fighter = 4
-                    action_cooldown = 0
-                
-        elif archer.rect.collidepoint(posx, posy):
-            screen.blit(heart_blue_img, (posx - 50, posy - 50))
-            if archer.hp < 1:
-                pass
-            else:
-                if clicked == True:
-                    healing = 2
-                    mage.heal()
-                    current_fighter = 4
-                    action_cooldown = 0
+        if action_cooldown >= action_wait_time:
+            pygame.mouse.set_visible(False)
+            if knight.rect.collidepoint(posx, posy):
+                screen.blit(heart_red_img, (posx - 50, posy - 50))
+                if knight.hp < 1:
+                    pass
+                else:    
+                    if clicked == True:
+                        healing = 1
+                        mage.heal()
+                        current_fighter = 4
+                        action_cooldown = 0
+                    
+            elif archer.rect.collidepoint(posx, posy):
+                screen.blit(heart_blue_img, (posx - 50, posy - 50))
+                if archer.hp < 1:
+                    pass
+                else:
+                    if clicked == True:
+                        healing = 2
+                        mage.heal()
+                        current_fighter = 4
+                        action_cooldown = 0
 
-        elif mage.rect.collidepoint(posx, posy):
-            screen.blit(heart_green_img, (posx - 50, posy - 50))
-            if mage.hp < 1:
-                pass
-            else:
-                if clicked == True:
-                    healing = 3
-                    mage.heal()
-                    current_fighter = 4
-                    action_cooldown = 0
+            elif mage.rect.collidepoint(posx, posy):
+                screen.blit(heart_green_img, (posx - 50, posy - 50))
+                if mage.hp < 1:
+                    pass
+                else:
+                    if clicked == True:
+                        healing = 3
+                        mage.heal()
+                        current_fighter = 4
+                        action_cooldown = 0
 
-        elif enemy.rect.collidepoint(posx-50, posy-50):
-            screen.blit(fire_img, (posx - 50, posy - 50))
-            if clicked == True:
-                attack = True
-                target = enemy
-        else:
-            pygame.mouse.set_visible(True)
+            elif enemy.rect.collidepoint(posx-50, posy-50):
+                screen.blit(fire_img, (posx - 50, posy - 50))
+                if clicked == True:
+                    attack = True
+                    target = enemy
+            else:
+                pygame.mouse.set_visible(True)
 
     
     else:
