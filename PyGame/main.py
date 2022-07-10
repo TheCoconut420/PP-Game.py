@@ -1,3 +1,4 @@
+from tkinter import E
 import pygame
 import random
 pygame.init()
@@ -33,8 +34,6 @@ background_img = pygame.image.load('PyGame\Background.jpg')
 background_img = pygame.transform.scale(background_img, (screen_width, screen_height)).convert_alpha()
 sword_img = pygame.image.load('PyGame\Sword.png')
 sword_img = pygame.transform.scale(sword_img, (100, 100)).convert_alpha()
-bow_img = pygame.image.load('PyGame\Bow.png')
-bow_img = pygame.transform.scale(bow_img, (50, 100)).convert_alpha()
 fire_img = pygame.image.load('PyGame\Fire.png')
 fire_img = pygame.transform.scale(fire_img, (100, 100)).convert_alpha()
 heart_red_img = pygame.image.load('PyGame\Heart_Red.png')
@@ -49,6 +48,12 @@ shield_red = pygame.image.load('PyGame\Shield_Red.png')
 shield_red = pygame.transform.scale(shield_red, (100, 100)).convert_alpha()
 shield_green = pygame.image.load('PyGame\Shield_Green.png')
 shield_green = pygame.transform.scale(shield_green, (100, 100)).convert_alpha()
+fist_red = pygame.image.load('PyGame\Fist_Red.png')
+fist_red = pygame.transform.scale(fist_red, (100, 100)).convert_alpha()
+fist_green = pygame.image.load('PyGame\Fist_Green.png')
+fist_green = pygame.transform.scale(fist_green, (100, 100)).convert_alpha()
+fist_blue = pygame.image.load('PyGame\Fist_Blue.png')
+fist_blue = pygame.transform.scale(fist_blue, (100, 100)).convert_alpha()
 
 def draw_bg():
     screen.blit(background_img, (0, 0))
@@ -168,6 +173,7 @@ class Knight(Objects):
 class Archer(Objects):
     def __init__(self, x, y, name, max_hp, strength):
         super().__init__(x, y, name, max_hp, strength)
+        self.atk_plus = 0
         temp_list = []
         for i in range(8):
             img = pygame.image.load(f'PyGame\ArcherImages\Idle{i}.png')
@@ -197,6 +203,18 @@ class Archer(Objects):
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x + 230, y + 300)
+
+    def attack_plus(self):
+        if self.atk_plus == 1:
+            knight.strength += 3
+            self.atk_plus = 0
+        elif self.atk_plus == 2:
+            archer.strength += 3
+            self.atk_plus = 0
+        elif self.atk_plus == 3:
+            mage.strength += 3
+            self.atk_plus = 0
+
 
 
 class Mage(Objects):
@@ -530,10 +548,7 @@ while run:
                     action_cooldown = 0
                 else:
                     current_fighter = 4
-                    action_cooldown = 0
-                
-            else:
-                pass
+                    action_cooldown = 0   
 
         elif archer.rect.collidepoint(posx, posy):
             pygame.mouse.set_visible(False)
@@ -548,9 +563,7 @@ while run:
                     action_cooldown = 0
                 else:
                     current_fighter = 4
-                    action_cooldown = 0
-            else:
-                pass    
+                    action_cooldown = 0 
                 
     elif current_fighter == 2:
         if enemy.rect.collidepoint(posx, posy):
@@ -559,8 +572,43 @@ while run:
             if clicked == True:
                 attack = True
                 target = enemy
-        else:
-            pygame.mouse.set_visible(True)
+
+        elif knight.rect.collidepoint(posx, posy):
+            pygame.mouse.set_visible(False)
+            screen.blit(fist_blue, (posx - 50, posy - 50))
+            if clicked == True:
+                archer.atk_plus = 1
+                archer.attack_plus()
+                if mage.hp > 0:
+                    current_fighter = 3
+                    action_cooldown = 0
+                else:
+                    current_fighter = 4
+                    action_cooldown = 0
+        elif archer.rect.collidepoint(posx, posy):
+            pygame.mouse.set_visible(False)
+            screen.blit(fist_green, (posx - 50, posy - 50))
+            if clicked == True:
+                archer.atk_plus = 2
+                archer.attack_plus()
+                if mage.hp > 0:
+                    current_fighter = 3
+                    action_cooldown = 0
+                else:
+                    current_fighter = 4
+                    action_cooldown = 0
+        elif mage.rect.collidepoint(posx, posy):
+            pygame.mouse.set_visible(False)
+            screen.blit(fist_red, (posx - 50, posy - 50))
+            if clicked == True:
+                archer.atk_plus = 1
+                archer.attack_plus()
+                if mage.hp > 0:
+                    current_fighter = 3
+                    action_cooldown = 0
+                else:
+                    current_fighter = 4
+                    action_cooldown = 0
 
     elif current_fighter == 3:
         if action_cooldown >= action_wait_time:
